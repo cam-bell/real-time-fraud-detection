@@ -56,10 +56,13 @@ class StreamingDashboard:
         history_df = metrics_tracker.get_metric_history_df()
         if not history_df.empty and "timestamp" in history_df.columns:
             if "roc_auc" in history_df.columns:
-                axes[1].plot(history_df["timestamp"], history_df["roc_auc"],
+                roc_df = history_df[history_df["roc_auc"].notna()].tail(20)
+                if not roc_df.empty:
+                    axes[1].plot(roc_df["timestamp"], roc_df["roc_auc"],
                              marker="o", markersize=3, label="ROC-AUC", linewidth=1.5)
             if "pr_auc" in history_df.columns:
-                axes[1].plot(history_df["timestamp"], history_df["pr_auc"],
+                pr_df = history_df[history_df["pr_auc"].notna()]
+                axes[1].plot(pr_df["timestamp"], pr_df["pr_auc"],
                              marker="s", markersize=3, label="PR-AUC", linewidth=1.5)
             axes[1].set_title('Performance Metrics over Time\n(System Computation Time)')
             axes[1].set_xlabel("Time")
@@ -92,7 +95,7 @@ class StreamingDashboard:
             axes[2].axis("off")
 
         # Panel 4: Drift detection events
-        if drift_detector.drift_history:
+        if drift_detector is not None and drift_detector.drift_history:
             drift_df = pd.DataFrame(drift_detector.drift_history)
             if "timestamp" in drift_df.columns:
                 for drift_type in ["performance", "distribution", "feature"]:
@@ -110,25 +113,29 @@ class StreamingDashboard:
                 axes[3].grid(True, alpha=0.3)
                 axes[3].tick_params(axis="x", rotation=45)
         else:
-            axes[3].text(0.2, 0.5, "No drift events yet",
+            axes[3].text(0.2, 0.5, "No drift events yet/ Drift detector not enabled (MVP mode)",
                          fontsize=9, verticalalignment="center")
             axes[3].set_title("Drift Detection Events")
             axes[3].axis("off")
 
         # Panel 5: Alert log
-        recent_alerts = alert_manager.get_recent_alerts(10)
-        if recent_alerts:
-            alert_text = []
-            for alert in recent_alerts[:5]:
-                timestamp = alert.get("timestamp", datetime.utcnow())
-                alert_type = alert.get("type", "unknown")
-                severity = alert.get("severity", "info")
-                alert_text.append(f"{timestamp.strftime('%H:%M:%S')} [{severity.upper()}] {alert_type}")
-            axes[4].text(0.05, 0.5, "\n".join(alert_text),
-                         fontsize=9, verticalalignment="center", family="monospace")
+        if alert_manager is not None:
+            recent_alerts = alert_manager.get_recent_alerts(10)
+            if recent_alerts:
+                alert_text = []
+                for alert in recent_alerts[:5]:
+                    timestamp = alert.get("timestamp", datetime.utcnow())
+                    alert_type = alert.get("type", "unknown")
+                    severity = alert.get("severity", "info")
+                    alert_text.append(f"{timestamp.strftime('%H:%M:%S')} [{severity.upper()}] {alert_type}")
+                axes[4].text(0.05, 0.5, "\n".join(alert_text),
+                            fontsize=9, verticalalignment="center", family="monospace")
+            else:
+                axes[4].text(0.2, 0.5, "No alerts",
+                            fontsize=9, verticalalignment="center")
         else:
-            axes[4].text(0.2, 0.5, "No alerts",
-                         fontsize=9, verticalalignment="center")
+            axes[4].text(0.2, 0.5, "Alert manager not enabled (MVP mode)",
+                            fontsize=9, verticalalignment="center")
         axes[4].set_title("Recent Alerts (Last 5)")
         axes[4].axis("off")
 
@@ -158,7 +165,8 @@ class StreamingDashboard:
                 f"F1-Score: {latest_metrics.get('f1', 0):.4f}\n"
                 f"Accuracy: {latest_metrics.get('accuracy', 0):.4f}\n"
                 f"Fraud Rate: {latest_metrics.get('fraud_rate', 0):.4f}\n"
-                f"Window Size: {latest_metrics.get('window_size', 0)}"
+                f"Current Window: {latest_metrics.get('window_size', 0)}\n"
+                f"Total Processed: {len(metrics_tracker.labels)}"
             )
             axes[6].text(0.05, 0.5, metrics_text, fontsize=10,
                          verticalalignment="center", family="monospace")

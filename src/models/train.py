@@ -7,7 +7,7 @@ from sklearn.compose import ColumnTransformer
 from xgboost import XGBClassifier
 from sklearn.pipeline import Pipeline
 
-from src.features.eda import add_eda_features
+from src.features.feature_engineering import add_eda_features
 
 categorical_features = [
     'category', 'subcategory', 'mcc', 'first', 'last', 'zip', 'state', 'city', 'job',
@@ -123,3 +123,5 @@ class AutoRetrainer:
         print(f"✓ Retraining complete in {retraining_time:.2f} seconds")
         
         return new_model, new_preprocessor
+    
+    

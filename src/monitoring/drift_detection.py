@@ -65,6 +65,7 @@ class DriftDetector:
         return statistic, p_value
 
     def check_drift(self, current_roc_auc=None, transaction_count=None):
+        """Check for drift and return drift status"""
         drift_types = []
         details = {}
 
