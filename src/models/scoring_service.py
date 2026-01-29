@@ -15,6 +15,7 @@ class ScoringService:
     def __init__(self, pipeline_path=None, threshold_path=None,
                  pipeline=None, threshold=None,
                  numerical_features=None, categorical_features=None,
+                 feature_engineer=None,
                  simulate_latency_ms=None):
         """
         Args:
@@ -22,8 +23,9 @@ class ScoringService:
             threshold_path: Path to pickled threshold.
             pipeline: Preloaded sklearn Pipeline (includes preprocessor).
             threshold: Decision threshold.
-            numerical_features: Feature list used in training.
-            categorical_features: Feature list used in training.
+            numerical_features: Feature list used in training (if feature_engineer not provided).
+            categorical_features: Feature list used in training (if feature_engineer not provided).
+            feature_engineer: Pre-instantiated feature engineer (e.g., OnlineFeatureEngineerV3 for v3).
             simulate_latency_ms: Tuple (min_ms, max_ms) to add synthetic latency.
         """
         if pipeline_path:
@@ -38,11 +40,14 @@ class ScoringService:
         else:
             self.threshold = threshold
 
-        if numerical_features is None or categorical_features is None:
-            numerical_features = [] if numerical_features is None else numerical_features
-            categorical_features = [] if categorical_features is None else categorical_features
-
-        self.feature_engineer = OnlineFeatureEngineer(numerical_features, categorical_features)
+        if feature_engineer is not None:
+            self.feature_engineer = feature_engineer
+        else:
+            if numerical_features is None or categorical_features is None:
+                numerical_features = [] if numerical_features is None else numerical_features
+                categorical_features = [] if categorical_features is None else categorical_features
+            self.feature_engineer = OnlineFeatureEngineer(numerical_features, categorical_features)
+        
         self.prediction_history = []
         self.latency_history = []
         self.simulate_latency_ms = simulate_latency_ms
@@ -53,6 +58,10 @@ class ScoringService:
 
         features_df = self.feature_engineer.engineer_features(transaction)
         fraud_probability = float(self.pipeline.predict_proba(features_df)[0, 1])
+
+        # Update card history cache if using v3 engineer
+        if hasattr(self.feature_engineer, 'update_history'):
+            self.feature_engineer.update_history(transaction)
 
         elapsed_ms = (time.time() - start_time) * 1000
         if self.simulate_latency_ms:

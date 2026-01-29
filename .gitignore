@@ -42,3 +42,5 @@ logs/
 .env
 .env.local
 
+# Text files
+*.txt
