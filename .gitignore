@@ -44,3 +44,7 @@ logs/
 
 # Text files
 *.txt
+
+# Markdown Files
+NOTEBOOK_CLEANUP_PLAN.md
+NOTEBOOK_MARKDOWN_AND_DOC_PLAN.md

@@ -1,0 +1,18 @@
+{
+  "model_version": "v2",
+  "trained_at": "2026-01-26T22:15:37.486113",
+  "threshold": 0.977633535861969,
+  "category_risk_lists": {
+    "high_risk": [
+      "shopping_net",
+      "grocery_pos",
+      "misc_net",
+      "home"
+    ],
+    "medium_risk": [
+      "food_dining",
+      "kids_pets",
+      "health_fitness"
+    ]
+  }
+}
