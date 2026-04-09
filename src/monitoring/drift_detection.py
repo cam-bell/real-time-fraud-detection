@@ -1,7 +1,7 @@
 """Simple drift detection utilities."""
 
 from collections import deque
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 from scipy.stats import ks_2samp
@@ -105,7 +105,7 @@ class DriftDetector:
             details["feature_drifts"] = feature_drifts
 
         drift_status = {
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone.utc),
             "drift_detected": bool(drift_types),
             "drift_types": drift_types,
             "details": details,

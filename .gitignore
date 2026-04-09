@@ -5,6 +5,11 @@ __pycache__/
 *.so
 .Python
 *.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
 dist/
 build/
 .venv/
@@ -27,8 +32,9 @@ ENV/
 .DS_Store
 Thumbs.db
 
-# Data files (if large)
-*.csv
+# Generated data artifacts
+outputs/*.csv
+data/*.csv
 *.pickle
 *.pkl
 *.h5
@@ -41,9 +47,6 @@ logs/
 # Environment variables
 .env
 .env.local
-
-# Text files
-*.txt
 
 # Markdown Files
 NOTEBOOK_CLEANUP_PLAN.md

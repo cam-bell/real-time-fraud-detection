@@ -3,7 +3,7 @@
 from typing import Any
 
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class AlertManager:
@@ -20,7 +20,7 @@ class AlertManager:
 
     def add_alert(self, alert_type, severity, message, metadata=None):
         alert = {
-            "timestamp": datetime.utcnow(),
+            "timestamp": datetime.now(timezone.utc),
             "type": alert_type,
             "severity": severity,
             "message": message,

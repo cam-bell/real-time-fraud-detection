@@ -2,7 +2,7 @@
 
 import time
 import pickle
-from datetime import datetime
+from datetime import datetime, timezone
 
 import numpy as np
 
@@ -57,7 +57,8 @@ class ScoringService:
         start_time = time.time()
 
         features_df = self.feature_engineer.engineer_features(transaction)
-        fraud_probability = float(self.pipeline.predict_proba(features_df)[0, 1])
+        probabilities = np.asarray(self.pipeline.predict_proba(features_df), dtype=float)
+        fraud_probability = float(probabilities[0, 1])
 
         # Update card history cache if using v3 engineer
         if hasattr(self.feature_engineer, 'update_history'):
@@ -70,7 +71,7 @@ class ScoringService:
 
         self.latency_history.append(elapsed_ms)
         self.prediction_history.append({
-            "timestamp": transaction.get("trans_date_trans_time", datetime.utcnow()),
+            "timestamp": transaction.get("trans_date_trans_time", datetime.now(timezone.utc)),
             "score": fraud_probability,
             "amount": float(transaction.get("amt", 0) or 0),
             "latency_ms": float(elapsed_ms),

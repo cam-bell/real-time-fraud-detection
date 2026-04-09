@@ -1,7 +1,7 @@
 """Streaming metrics tracking."""
 
 from collections import deque
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import numpy as np
 import pandas as pd
@@ -35,7 +35,9 @@ class MetricsTracker:
 
     def update(self, transaction, score, label):
         """Update with new prediction."""
-        transaction_timestamp = pd.to_datetime(transaction.get("trans_date_trans_time", datetime.utcnow()))
+        transaction_timestamp = pd.to_datetime(
+            transaction.get("trans_date_trans_time", datetime.now(timezone.utc))
+        )
         prediction = 1 if score >= self.threshold else 0
 
         self.predictions.append(prediction)
@@ -48,7 +50,7 @@ class MetricsTracker:
             metrics = self.compute_metrics()
             if metrics:
                 # Use CURRENT TIME for when metric was computed (system time)
-                metrics["timestamp"] = datetime.utcnow() # System time
+                metrics["timestamp"] = datetime.now(timezone.utc) # System time
                 # Optionally keep transaction time for reference
                 metrics["transaction_timestamp"] = transaction_timestamp  # Historical data time
                 self.metric_history.append(metrics)

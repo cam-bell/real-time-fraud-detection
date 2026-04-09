@@ -3,7 +3,7 @@
 Includes OnlineFeatureEngineer (v2) and OnlineFeatureEngineerV3 (v3 with target encoding + velocity).
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from collections import defaultdict
 
 import numpy as np
@@ -41,7 +41,7 @@ class OnlineFeatureEngineer:
         if isinstance(txn.get("trans_date_trans_time"), str):
             txn["trans_date_trans_time"] = pd.to_datetime(txn["trans_date_trans_time"])
 
-        dt = pd.to_datetime(txn.get("trans_date_trans_time", datetime.utcnow()))
+        dt = pd.to_datetime(txn.get("trans_date_trans_time", datetime.now(timezone.utc)))
         txn["hour"] = dt.hour
         txn["day_of_week"] = dt.dayofweek
         txn["day_of_month"] = dt.day
@@ -198,7 +198,7 @@ class OnlineFeatureEngineerV3:
         # Parse timestamp
         if isinstance(txn.get("trans_date_trans_time"), str):
             txn["trans_date_trans_time"] = pd.to_datetime(txn["trans_date_trans_time"])
-        dt = pd.to_datetime(txn.get("trans_date_trans_time", datetime.utcnow()))
+        dt = pd.to_datetime(txn.get("trans_date_trans_time", datetime.now(timezone.utc)))
 
         # Basic temporal features (same as v2)
         txn["hour"] = dt.hour
