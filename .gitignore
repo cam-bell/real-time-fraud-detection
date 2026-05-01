@@ -36,7 +36,7 @@ Thumbs.db
 outputs/*.csv
 data/*.csv
 *.pickle
-*.pkl
+# *.pkl
 *.h5
 *.hdf5
 

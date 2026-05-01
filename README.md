@@ -78,6 +78,23 @@ Dependency management notes:
 
 The dashboard expects local CSV and model artifacts rather than downloading them at runtime.
 
+### Dataset Setup
+
+Download the datasets from their canonical Kaggle sources and place the files under `data/` with these exact names:
+
+- `data/creditcard.csv` from [Credit Card Fraud Detection | Kaggle](https://www.kaggle.com/datasets/mlg-ulb/creditcardfraud)
+- `data/fraudTrain.csv` from [Credit Card Transactions Fraud Detection Dataset | Kaggle](https://www.kaggle.com/datasets/kartik2112/fraud-detection)
+- `data/fraudTest.csv` from [Credit Card Transactions Fraud Detection Dataset | Kaggle](https://www.kaggle.com/datasets/kartik2112/fraud-detection)
+
+After downloading, your `data/` directory should contain:
+
+```text
+data/
+├── creditcard.csv
+├── fraudTrain.csv
+└── fraudTest.csv
+```
+
 Required dashboard inputs:
 
 - `data/fraudTest.csv`
